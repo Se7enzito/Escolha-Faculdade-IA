@@ -2,7 +2,6 @@ from flask import Flask, render_template, redirect, url_for, session, request
 from flask_session import Session
 from libs.api.DataAPI import DataGeren
 from libs.api.MathAPI import Calcs
-from libs.api.PdfAPI import PDF
 from libs.api.ExelAPI import Exel
 from libs.api.MachineAPI import prevNota
 
@@ -20,7 +19,6 @@ Session(app)
 
 dataGeren = DataGeren()
 calcs = Calcs()
-pdf = PDF()
 exel = Exel()
 
 dadosTeste = {
@@ -124,6 +122,14 @@ def getDesvioPadrao(faculdade: str, curso: str, concorrencia: str) -> float:
     
     return calcs.desvio_padrao(newNotas)
 
+@app.route('/')
+def index():
+    return render_template("index.html")
+
+@app.route('/dashboard')
+def dashboard():
+    pass
+
 if __name__ == "__main__":
     # Padrão de dados utilizados: 'Universidade Federal do Ceara', 'Ciências da Computação', 'Ampla Concorrência'
     
@@ -133,6 +139,29 @@ if __name__ == "__main__":
     desvio_padrao = getDesvioPadrao('Universidade Federal do Ceara', 'Ciências da Computação', 'Ampla Concorrência')
     
     notas = dadosTeste['Universidade Federal do Ceara']['Notas']['Ciências da Computação']['Ampla Concorrência']
+    notasMl = prevNota(notas)
     
     print(f'Média: {media} / Variância: {variancia} / Desvio Padrão: {desvio_padrao}')
-    prevNota(notas)
+    print(notasMl)
+    
+    todasNotas = [media, media + desvio_padrao, media - desvio_padrao]
+    todasNotas.extend(list(notasMl.values()))
+    
+    print(todasNotas)
+    
+    userNota = float(input("Digite sua nota: "))
+
+    intervalo = 0
+    
+    if (userNota in todasNotas):
+        intervalo = 1
+        print("Você está dentro do intervalo de confiança. " + str(intervalo) + " cenário.")
+    else:
+        for nota in todasNotas:
+            if (userNota >= nota):
+                print("Você está dentro do intervalo de confiança. " + str(intervalo) + " cenário.")
+                
+                intervalo += 1
+        
+        if (intervalo == 0):
+            print("Você não está em qualquer intervalo de segunraça.")

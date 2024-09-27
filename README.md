@@ -4,4 +4,4 @@
 
 ## Simulação Nota de Corte
 
-# Made By: Se7enzito - Instituo O6S
+# Made By: Se7enzito - Instituto O6S
